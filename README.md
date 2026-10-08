@@ -84,6 +84,10 @@
 
 ### Paraphrase
 
+![Paraphrase 실험의 코사인 유사도, MSE, 저장량 및 저장량 감소율](docs/images/paraphrase_comparison.png)
+
+20문장 실험의 노트북 실행 출력입니다. 위쪽은 방법별 복원 정확도, 아래쪽은 샘플 수별 저장 비용입니다. 원그래프의 파란색은 줄어든 저장량, 회색은 남은 저장량을 나타냅니다. 같은 샘플 수에서는 네 방법의 저장 비용이 같습니다.
+
 Chebyshev + Linear는 시험한 모든 샘플 수에서 가장 높은 평균 코사인 유사도와 가장 낮은 평균 MSE를 보였습니다.
 
 | 조건 | 샘플 수 | 코사인 유사도 | MSE | 저장량 감소율 |
@@ -95,6 +99,10 @@ Chebyshev + Linear는 시험한 모든 샘플 수에서 가장 높은 평균 코
 평균 코사인 유사도 0.95 이상을 유지하면서 저장량을 최소화하는 기준에서는 Chebyshev + Linear, k=8이 선택되었습니다. 원본 1,536 B를 816 B로 줄였습니다. 샘플 수를 늘리면 벡터 복원 정확도는 높아졌지만 저장량 감소율은 낮아졌습니다.
 
 ### GTR + Vec2Text
+
+![GTR 및 Vec2Text 실험의 Exact Match, BERTScore F1, WER 비교](docs/images/gtr_comparison.png)
+
+영어 문단 3개를 5회 반복 수정하여 복원한 결과입니다. 회색 막대는 압축하지 않은 `Original` 기준입니다. Exact Match는 모든 조건에서 0이므로 막대가 보이지 않습니다. U는 Uniform, C는 Chebyshev, L은 Linear, S는 Cubic Spline이며, 뒤의 숫자는 샘플 수입니다.
 
 | 조건 | 샘플 수 | Exact Match | BERTScore F1 | WER | 저장량 감소율 |
 |---|---:|---:|---:|---:|---:|
