@@ -118,6 +118,56 @@ Chebyshev + Linear는 시험한 모든 샘플 수에서 가장 높은 평균 코
 
 샘플 16개에서는 Chebyshev + Linear가 두 텍스트 유사도·오류 지표에서 가장 좋았습니다. 64개에서는 Uniform + Linear의 BERTScore가 가장 높고, Chebyshev + Cubic의 WER이 가장 낮았습니다. 압축하지 않은 기준을 포함해 Exact Match는 모두 0이었으며, 샘플 수 증가가 텍스트 품질 향상을 보장하지 않았습니다.
 
+### GTR 실제 원문과 복원문 비교
+
+아래는 `vec2text_simple.ipynb`의 `SELECTED_PARAGRAPH = 0` 실행 출력입니다. **앞의 표는 문단 3개의 평균이고, 아래 점수는 첫 번째 문단 하나의 결과**입니다. 복원문의 어색한 표현과 공백은 수정하지 않았습니다.
+
+**원문**
+
+```text
+The park was quiet this morning. A dog ran across the grass. Its owner followed with a ball.
+```
+
+원문은 “오늘 아침 공원은 조용했고, 개가 잔디 위를 달렸으며, 주인이 공을 가지고 뒤따랐다”는 내용입니다.
+
+| 조건 | Exact Match | BERTScore F1 ↑ | WER ↓ |
+|---|---:|---:|---:|
+| Original | 0 | 0.8149 | 0.6667 |
+| Uniform + Linear, k=16 | 0 | 0.7504 | 0.8889 |
+| Uniform + Cubic, k=16 | 0 | 0.7477 | 1.0556 |
+| Chebyshev + Linear, k=16 | 0 | 0.8151 | 1.0000 |
+| Chebyshev + Cubic, k=16 | 0 | 0.8267 | 0.6667 |
+| Uniform + Linear, k=64 | 0 | **0.8897** | **0.5000** |
+| Uniform + Cubic, k=64 | 0 | 0.7195 | 0.8889 |
+| Chebyshev + Linear, k=64 | 0 | 0.7490 | 1.0000 |
+| Chebyshev + Cubic, k=64 | 0 | 0.7960 | 0.7778 |
+
+**압축하지 않은 Original의 복원문**
+
+```text
+This morning was a quiet . The dog ran across the park grass. The dog's owner followed with a ball and its
+```
+
+개가 공원의 잔디 위를 달리고 주인이 공을 가지고 뒤따르는 내용은 유지되었습니다. 하지만 첫 문장의 표현이 불완전하고, 마지막 문장이 `and its`에서 끝납니다. 압축하지 않은 임베딩에서도 원문을 그대로 복원하지 못했습니다.
+
+**Uniform + Linear, k=64의 복원문**
+
+```text
+This morning was a quiet day. The dog ran across the park grass. Its owner followed with a ball   .
+```
+
+이 문단에서는 BERTScore가 0.8897로 가장 높고 WER이 0.5000으로 가장 낮았습니다. 개가 잔디 위를 달리고 주인이 공을 가지고 뒤따르는 주요 내용이 유지되었습니다. 다만 “공원이 조용했다”가 “조용한 날이었다”로 바뀌었고, 표현과 공백도 달라 Exact Match는 0입니다.
+
+**Chebyshev + Cubic, k=64의 복원문**
+
+```text
+This morning, a ball ran across the park grass. The dog was quiet. Its owner followed with a   .
+```
+
+공원, 개, 공, 주인 등의 단어는 남아 있지만, 달리는 주체가 **개에서 공으로** 바뀌었습니다. 조용한 대상도 공원에서 개로 바뀌었으며, 주인이 무엇을 가지고 뒤따랐는지도 빠졌습니다. 이 조건은 문단 3개의 평균 WER에서는 가장 좋았지만, 이 개별 문단에서는 의미 변화가 뚜렷했습니다.
+
+이 사례에서 BERTScore 0.8897은 “의미가 88.97% 정확하다”는 뜻이 아닙니다. WER 0.5000 역시 “의미의 절반이 틀렸다”는 뜻이 아니라 원문 단어 수 대비 편집 오류 비율입니다. 평균 점수와 함께 실제 복원문의 주체·행동·정보 누락을 확인해야 합니다.
+
 ## 해석 범위
 
 벡터가 수치적으로 유사하더라도 원문의 표현이나 사실관계가 완전히 복원되는 것은 아닙니다. BERTScore가 높거나 WER이 낮아도 실제 복원문을 함께 읽어야 합니다. 두 실험은 모델과 입력 데이터가 다르고, 특히 GTR 실험은 영어 문단 3개만 사용하므로 일반적인 성능이나 통계적 유의성을 주장하지 않습니다.
